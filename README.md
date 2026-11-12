@@ -1,6 +1,4 @@
-# SILUAK
-
-SILUAK adalah aplikasi berbasis CodeIgniter 4.
+# SILUAK (CodeIgniter 4)
 
 ## Menjalankan dengan Docker
 
