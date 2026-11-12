@@ -58,7 +58,22 @@ final class SiluakFeatureTest extends CIUnitTestCase
         ]);
 
         $result->assertRedirect();
+        $record = (new KerusakanAlatModel())->first();
         $this->assertSame(1, (new KerusakanAlatModel())->countAllResults());
+        $this->assertMatchesRegularExpression('/^SLK-ALAT-\d{8}-[A-F0-9]{16}$/', $record['ticket_code']);
+
+        $ticketResult = $this->get('/tiket/' . $record['ticket_code']);
+        $ticketResult->assertOK();
+        $this->assertStringContainsString($record['ticket_code'], $ticketResult->response()->getBody());
+        $this->assertStringContainsString('Status: Menunggu', $ticketResult->response()->getBody());
+    }
+
+    public function testTicketLookupRejectsUnknownCodesWithoutShowingRequestDetails(): void
+    {
+        $result = $this->get('/tiket/SLK-ALAT-20261112-0123456789ABCDEF');
+
+        $result->assertRedirectTo(site_url('tiket'));
+        $this->assertSame('Tiket tidak ditemukan. Periksa kembali kode yang dimasukkan.', session()->getFlashdata('error'));
     }
 
     public function testAdminEquipmentReportUsesOnlyExistingSchemaFields(): void

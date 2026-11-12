@@ -9,7 +9,7 @@ class PengajuanBmdModel extends Model
     protected $table = 'pengajuan_bmds';
     protected $allowedFields = [
         'nama', 'email', 'bidang', 'kode', 'program', 'kegiatan', 'output',
-        'keterangan', 'items', 'status',
+        'keterangan', 'items', 'status', 'ticket_code',
     ];
     protected $useTimestamps = true;
     protected $returnType = 'array';

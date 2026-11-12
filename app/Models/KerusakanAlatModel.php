@@ -8,7 +8,7 @@ class KerusakanAlatModel extends Model
 {
     protected $table = 'kerusakan_alats';
     protected $allowedFields = [
-        'nama', 'bidang', 'jenis_alat', 'nama_alat', 'kerusakan', 'status', 'prioritas',
+        'nama', 'bidang', 'jenis_alat', 'nama_alat', 'kerusakan', 'status', 'prioritas', 'ticket_code',
     ];
     protected $useTimestamps = true;
     protected $returnType = 'array';

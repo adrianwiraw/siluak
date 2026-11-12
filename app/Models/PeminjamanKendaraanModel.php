@@ -9,7 +9,7 @@ class PeminjamanKendaraanModel extends Model
     protected $table = 'peminjaman_kendaraans';
     protected $allowedFields = [
         'nama', 'nip', 'telepon', 'bidang', 'jenis_kendaraan', 'tujuan', 'kegiatan',
-        'tgl_pinjam', 'tgl_kembali', 'status', 'surat_permohonan',
+        'tgl_pinjam', 'tgl_kembali', 'status', 'surat_permohonan', 'ticket_code',
     ];
     protected $useTimestamps = true;
     protected $returnType = 'array';

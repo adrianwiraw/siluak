@@ -8,6 +8,7 @@ use App\Models\KerusakanGedungModel;
 use App\Models\PengajuanBmdModel;
 use App\Models\PeminjamanKendaraanModel;
 use App\Models\PeminjamanRuanganModel;
+use CodeIgniter\Model;
 use CodeIgniter\HTTP\Files\UploadedFile;
 
 class SubmissionController extends BaseController
@@ -43,6 +44,15 @@ class SubmissionController extends BaseController
             'title' => 'Permintaan ATK',
             'fields' => ['nama', 'nip', 'bidang', 'items', 'foto'],
         ],
+    ];
+
+    private const TICKET_PREFIXES = [
+        'bmd' => 'BMD',
+        'alat' => 'ALAT',
+        'gedung' => 'GEDUNG',
+        'kendaraan' => 'KENDARAAN',
+        'ruangan' => 'RUANGAN',
+        'atk' => 'ATK',
     ];
 
     public function listing(string $type)
@@ -105,9 +115,14 @@ class SubmissionController extends BaseController
         }
 
         $modelClass = self::TYPES[$type]['model'];
-        (new $modelClass())->insert($record);
+        $model = new $modelClass();
+        $ticketCode = $this->generateTicketCode($type, $model);
+        $record['ticket_code'] = $ticketCode;
+        if ($model->insert($record) === false) {
+            return redirect()->back()->withInput()->with('error', 'Permohonan gagal disimpan. Silakan coba lagi.');
+        }
 
-        return redirect()->back()->with('success', 'Permohonan berhasil dikirim.');
+        return redirect()->to(site_url('tiket/' . $ticketCode));
     }
 
     public function adminStoreEquipment()
@@ -204,6 +219,19 @@ class SubmissionController extends BaseController
         $type = $aliases[$type] ?? $type;
 
         return isset(self::TYPES[$type]) ? $type : null;
+    }
+
+    private function generateTicketCode(string $type, Model $model): string
+    {
+        $prefix = self::TICKET_PREFIXES[$type];
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            $code = sprintf('SLK-%s-%s-%s', $prefix, date('Ymd'), strtoupper(bin2hex(random_bytes(8))));
+            if ($model->where('ticket_code', $code)->first() === null) {
+                return $code;
+            }
+        }
+
+        throw new \RuntimeException('Tidak dapat membuat kode tiket unik setelah beberapa percobaan.');
     }
 
     private function validateSubmission(string $type, array $data): array

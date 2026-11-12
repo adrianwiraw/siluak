@@ -1,0 +1,69 @@
+.chart-tooltip {
+    position: fixed;
+    z-index: 9999;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: #0f172a;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s;
+}
+
+.public-page .card {
+    margin: 1rem 0;
+    padding: 1.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: .75rem;
+    background: #fff;
+    box-shadow: 0 1px 2px rgb(15 23 42 / 5%);
+}
+
+.public-page .table-wrap {
+    overflow-x: auto;
+}
+
+.public-page table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.public-page th,
+.public-page td {
+    padding: .75rem 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+    vertical-align: top;
+}
+
+.public-page th {
+    background: #eff6ff;
+    color: #374151;
+}
+
+.public-page .muted {
+    color: #6b7280;
+}
+
+.public-page a.button {
+    display: inline-block;
+    padding: .65rem 1rem;
+    border-radius: .5rem;
+    background: #2566a8;
+    color: #fff;
+    text-decoration: none;
+}
+
+@media (max-width: 640px) {
+    .public-page .card {
+        padding: 1rem;
+    }
+
+    .public-page th,
+    .public-page td {
+        padding: .65rem .75rem;
+    }
+}

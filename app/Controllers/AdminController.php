@@ -42,13 +42,44 @@ class AdminController extends BaseController
         $weekStart = new \DateTimeImmutable('monday this week 00:00:00');
         $lastWeekStart = $weekStart->modify('-7 days');
         $chartData = array_fill(0, 7, 0);
+        $pendingRequests = [];
+        $activities = [];
+        $activityAppearance = [
+            'bmd' => ['icon' => 'inventory_2', 'color' => 'blue'],
+            'peralatan' => ['icon' => 'build', 'color' => 'orange'],
+            'gedung' => ['icon' => 'domain', 'color' => 'red'],
+            'kendaraan' => ['icon' => 'directions_car', 'color' => 'purple'],
+            'ruangan' => ['icon' => 'meeting_room', 'color' => 'indigo'],
+            'atk' => ['icon' => 'school', 'color' => 'emerald'],
+        ];
 
-        foreach (self::RECORDS as $record) {
+        foreach (self::RECORDS as $type => $record) {
             $modelClass = $record['model'];
             $model = new $modelClass();
             $pending += $model->where('status', 'Menunggu')->countAllResults();
             $completed += $model->where('status', 'Selesai')->countAllResults();
             $total += $model->countAllResults();
+
+            foreach ($model->where('status', 'Menunggu')->orderBy('created_at', 'DESC')->findAll(10) as $item) {
+                $pendingRequests[] = [
+                    'type' => $type,
+                    'title' => $record['title'],
+                    'id' => $item['id'],
+                    'name' => $item['nama'] ?? '-',
+                    'created_at' => $item['created_at'] ?? '',
+                    'status' => $item['status'] ?? 'Menunggu',
+                ];
+            }
+
+            foreach ($model->orderBy('created_at', 'DESC')->findAll(5) as $item) {
+                $activities[] = [
+                    'type' => $record['title'],
+                    'name' => $item['nama'] ?? '-',
+                    'created_at' => $item['created_at'] ?? '',
+                    'icon' => $activityAppearance[$type]['icon'],
+                    'color' => $activityAppearance[$type]['color'],
+                ];
+            }
 
             $weekCurrent += $model->where('created_at >=', $weekStart->format('Y-m-d H:i:s'))->countAllResults();
             $weekLast += $model->where('created_at >=', $lastWeekStart->format('Y-m-d H:i:s'))
@@ -63,10 +94,14 @@ class AdminController extends BaseController
             }
         }
 
+        usort($pendingRequests, static fn (array $left, array $right): int => strcmp($right['created_at'], $left['created_at']));
+        usort($activities, static fn (array $left, array $right): int => strcmp($right['created_at'], $left['created_at']));
+
         return view('admin/dashboard', [
             'pending' => $pending,
             'completed' => $completed,
             'total' => $total,
+            'pendingRequests' => array_slice($pendingRequests, 0, 10),
             'weekCurrent' => $weekCurrent,
             'weekLast' => $weekLast,
             'weeklyChange' => $weekLast > 0
@@ -74,6 +109,7 @@ class AdminController extends BaseController
                 : ($weekCurrent > 0 ? 100 : 0),
             'chartData' => $chartData,
             'records' => self::RECORDS,
+            'activities' => array_slice($activities, 0, 5),
         ]);
     }
 

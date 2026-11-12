@@ -87,6 +87,10 @@ Buka alamat berikut di browser:
 
 **http://localhost:8080**
 
+Setelah mengirim pengajuan layanan, pemohon akan mendapat kode tiket untuk
+mengecek status. Kode tersebut dapat digunakan kembali di menu **Cek Tiket**
+atau di alamat **http://localhost:8080/tiket**.
+
 Jika halaman belum dapat dibuka, periksa status dan log container:
 
 ```powershell
@@ -142,8 +146,8 @@ driver yang dikonfigurasi), serta ekstensi PHP `intl`, `mbstring`, `zip`, dan
    php spark migrate --all
    ```
 
-   Migrasi membuat tabel domain SILUAK yang belum ada dan tidak menambahkan
-   kolom ke tabel yang sudah ada.
+   Migrasi membuat tabel domain SILUAK yang belum ada dan menambahkan kolom
+   kode tiket yang nullable pada tabel pengajuan untuk menjaga data lama.
 5. Arahkan document root web server ke folder `public/`, atau jalankan server
    bawaan CodeIgniter:
 

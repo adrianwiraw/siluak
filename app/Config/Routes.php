@@ -5,12 +5,15 @@ use CodeIgniter\Router\RouteCollection;
 /** @var RouteCollection $routes */
 $routes->get('/', 'PortalController::index', ['as' => 'welcome']);
 $routes->get('login/admin', 'AuthController::showLogin', ['as' => 'login.admin']);
-$routes->post('login/admin', 'AuthController::login', ['as' => 'login.submit']);
+$routes->post('login/admin', 'AuthController::login', ['as' => 'login.post.admin']);
 $routes->post('logout', 'AuthController::logout', ['filter' => 'auth', 'as' => 'logout']);
 
 $routes->get('layanan', 'PortalController::index', ['as' => 'layanan.index']);
 $routes->post('layanan/store/(:segment)', 'SubmissionController::store/$1', ['as' => 'layanan.store']);
-$routes->get('layanan/detail/(:num)', 'PortalController::detail/$1', ['filter' => 'auth', 'as' => 'layanan.detail']);
+$routes->get('layanan/detail/(:num)', 'PortalController::detail/$1', ['as' => 'layanan.show']);
+$routes->get('tiket', 'TicketController::index', ['as' => 'ticket.index']);
+$routes->post('tiket/cari', 'TicketController::lookup', ['as' => 'ticket.lookup']);
+$routes->get('tiket/(:segment)', 'TicketController::show/$1', ['as' => 'ticket.show']);
 $routes->get('media/(:any)', 'FileController::show/$1');
 
 $routes->group('umpeg/laporan', static function (RouteCollection $routes): void {

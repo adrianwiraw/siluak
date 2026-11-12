@@ -27,7 +27,7 @@ class MenuController extends BaseController
             'nama_layanan' => $name,
             'slug' => url_title($name, '-', true),
             'icon' => trim((string) $this->request->getPost('icon')) ?: 'description',
-            'is_active' => 1,
+            'is_active' => $this->request->getPost('status') === 'active' ? 1 : 0,
         ]);
 
         return redirect()->to(site_url('admin/layanan/index'))->with('success', 'Layanan berhasil ditambahkan.');

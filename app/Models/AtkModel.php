@@ -7,7 +7,7 @@ use CodeIgniter\Model;
 class AtkModel extends Model
 {
     protected $table = 'atk';
-    protected $allowedFields = ['nama', 'nip', 'bidang', 'items', 'diberi', 'foto', 'status'];
+    protected $allowedFields = ['nama', 'nip', 'bidang', 'items', 'diberi', 'foto', 'status', 'ticket_code'];
     protected $useTimestamps = true;
     protected $returnType = 'array';
 }
