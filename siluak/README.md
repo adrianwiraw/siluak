@@ -1,59 +1,106 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SILUAK (CodeIgniter 4)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This is the parallel CodeIgniter 4 application for SILUAK. The original Laravel
+application remains in the sibling `siluak` directory.
 
-## About Laravel
+## Run with Docker
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Requirements: Docker Desktop with Docker Compose.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+1. In PowerShell, open this folder and create the local configuration files:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+   ```powershell
+   Copy-Item env .env
+   Copy-Item .env.docker.example .env.docker
+   ```
 
-## Learning Laravel
+2. Edit `.env.docker` and set unique local database passwords. In `.env`, set
+   the application and database settings to match:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+   ```ini
+   CI_ENVIRONMENT = development
+   app.baseURL = 'http://localhost:8080/'
+   database.default.hostname = db
+   database.default.database = siluak
+   database.default.username = siluak
+   database.default.password = 'change-this-local-password'
+   database.default.DBDriver = MySQLi
+   database.default.port = 3306
+   ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+   If you changed the database name or username in `.env.docker`, update those
+   values in `.env` too. Keep `.env` and `.env.docker` private; do not use the
+   example passwords outside local development.
 
-## Laravel Sponsors
+3. Build and start the app and its MariaDB database:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+   ```powershell
+   docker compose --env-file .env.docker up --build -d
+   ```
 
-### Premium Partners
+4. Create the tables and open **http://localhost:8080**:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+   ```powershell
+   docker compose exec app php spark migrate --all
+   ```
 
-## Contributing
+   To create the first admin in a new database, set `SILUAK_ADMIN_EMAIL` and
+   `SILUAK_ADMIN_PASSWORD` in `.env`, then run:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+   ```powershell
+   docker compose exec app php spark db:seed DatabaseSeeder
+   ```
 
-## Code of Conduct
+   Existing Laravel data is not copied into the bundled database. To reuse an
+   existing database, configure `.env` to connect to it instead; back it up and
+   confirm the target before running migrations.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Stop the containers with `docker compose --env-file .env.docker down`. Database
+and uploaded files persist in Docker volumes. To remove the database and
+uploads as well, `docker compose --env-file .env.docker down --volumes` deletes
+that stored data.
 
-## Security Vulnerabilities
+## Run without Docker
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Requirements: PHP 8.2+, Composer, MySQL/MariaDB (or another configured database
+driver), and PHP `intl`, `mbstring`, `zip`, and `gd` extensions.
 
-## License
+## Setup
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. Copy `env` to `.env`.
+2. Set `app.baseURL` and the database connection values in `.env`. Use the same
+   database as Laravel to access existing users and requests; do not copy
+   production credentials into source control.
+3. Install dependencies with `composer install`.
+4. Run `php spark migrate --all`. The migration creates the existing SILUAK
+   domain tables when absent and does not add fields to existing tables.
+5. Point the web server document root to `public/`, or run `php spark serve`.
+
+For SQLite, set `database.default.DBDriver = SQLite3` and point
+`database.default.database` to the existing SQLite file. For MySQL/MariaDB,
+configure hostname, database, username, and password in `.env`. Confirm the
+selected connection before running migrations.
+
+The app does not create an administrator with a default password. Existing
+Laravel user records can be used when the configured database is shared.
+For a new database, set `SILUAK_ADMIN_EMAIL` and `SILUAK_ADMIN_PASSWORD` in
+`.env`, then run `php spark db:seed DatabaseSeeder` to create the first admin.
+
+## Tests
+
+The tests use the in-memory SQLite configuration. If `sqlite3` is installed
+but not enabled in the CLI PHP configuration, run:
+
+```powershell
+php -d extension=sqlite3 vendor/bin/phpunit --no-coverage
+```
+
+## Migration notes
+
+- Database table and column names are kept compatible with the Laravel schema.
+- File uploads are stored under `writable/uploads`; back up and migrate those
+  files separately when changing storage locations.
+- Enable PHP `zip` and `gd` in the web-server PHP configuration before using
+  XLSX exports.
+- Laravel Blade templates and the Laravel Vite plugin are not runtime
+  dependencies of this application.
