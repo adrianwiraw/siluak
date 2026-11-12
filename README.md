@@ -1,7 +1,6 @@
-# SILUAK (CodeIgniter 4)
+# SILUAK
 
-SILUAK adalah aplikasi berbasis CodeIgniter 4. Aplikasi Laravel sebelumnya
-tetap berada di direktori `siluak` yang sejajar dengan proyek ini.
+SILUAK adalah aplikasi berbasis CodeIgniter 4.
 
 ## Menjalankan dengan Docker
 
